@@ -19,46 +19,90 @@ async function checkPokemon() {
 
     errorMessage.textContent = "";
 
-    // Check that all fields are filled
-    if (!pokemonName || !cp || !iv || candy < 0) {
+    // Validate the input
+    if (!pokemonName || cp < 0 || iv < 0 || iv > 100 || candy < 0) {
         errorMessage.textContent =
             "Please fill in all the fields correctly.";
         result.style.display = "none";
         return;
     }
 
-    // Check IV range
-    if (iv < 0 || iv > 100) {
-        errorMessage.textContent =
-            "IV must be between 0 and 100.";
-        result.style.display = "none";
-        return;
-    }
-
     try {
 
-        // Get Pokémon information from PokéAPI
-        const response = await fetch(
+        // Get Pokémon data
+        const pokemonResponse = await fetch(
             `https://pokeapi.co/api/v2/pokemon/${pokemonName}`
         );
 
-        if (!response.ok) {
+        if (!pokemonResponse.ok) {
             throw new Error("Pokémon not found");
         }
 
-        const data = await response.json();
+        const pokemonData = await pokemonResponse.json();
+
+        // Get species information
+        const speciesResponse = await fetch(
+            pokemonData.species.url
+        );
+
+        const speciesData = await speciesResponse.json();
+
+        // Get evolution chain
+        const evolutionResponse = await fetch(
+            speciesData.evolution_chain.url
+        );
+
+        const evolutionData = await evolutionResponse.json();
+
+        // Find the next evolution
+        const currentName = pokemonData.name;
+
+        let nextEvolution = "No further evolution";
+
+        function findNextEvolution(chain) {
+
+            if (chain.species.name === currentName) {
+
+                if (chain.evolves_to.length > 0) {
+                    return chain.evolves_to[0].species.name;
+                }
+
+                return null;
+            }
+
+            for (const evolution of chain.evolves_to) {
+
+                const result = findNextEvolution(evolution);
+
+                if (result) {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        const foundEvolution = findNextEvolution(
+            evolutionData.chain
+        );
+
+        if (foundEvolution) {
+            nextEvolution = foundEvolution;
+        }
 
         // Display Pokémon image
-        document.getElementById("pokemonImage").src =
-            data.sprites.other["official-artwork"].front_default ||
-            data.sprites.front_default;
+        const image =
+            pokemonData.sprites.other["official-artwork"].front_default ||
+            pokemonData.sprites.front_default;
+
+        document.getElementById("pokemonImage").src = image;
 
         // Display Pokémon name
         document.getElementById("pokemonName").textContent =
-            data.name;
+            pokemonData.name;
 
         // Display Pokémon type
-        const types = data.types
+        const types = pokemonData.types
             .map(type => type.type.name)
             .join(" / ");
 
@@ -70,15 +114,14 @@ async function checkPokemon() {
         document.getElementById("displayIV").textContent = `${iv}%`;
         document.getElementById("displayCandy").textContent = candy;
 
-        // Simple evolution recommendation
-        const candyRequired = 50;
+        // Display evolution
+        document.getElementById("evolutionName").textContent =
+            nextEvolution;
 
         document.getElementById("candyRequired").textContent =
-            `${candyRequired} candy`;
+            "Check Pokémon GO";
 
-        document.getElementById("evolutionName").textContent =
-            "Next evolution";
-
+        // Recommendation
         const recommendation =
             document.getElementById("recommendation");
 
@@ -88,22 +131,13 @@ async function checkPokemon() {
         const recommendationText =
             document.getElementById("recommendationText");
 
-        // Recommendation logic
-        if (candy < candyRequired) {
-
-            recommendationTitle.textContent =
-                "🔴 DON'T EVOLVE YET";
-
-            recommendationText.textContent =
-                `You need ${candyRequired} candy, but you only have ${candy}. Get more candy before evolving.`;
-
-        } else if (iv >= 80) {
+        if (iv >= 80) {
 
             recommendationTitle.textContent =
                 "🟢 YES — EVOLVE!";
 
             recommendationText.textContent =
-                `This Pokémon has a high IV (${iv}%) and you have enough candy. Evolution is recommended.`;
+                `This Pokémon has a high IV of ${iv}%. If you have enough candy for the evolution, it is a good candidate to evolve.`;
 
         } else if (iv >= 50) {
 
@@ -111,7 +145,7 @@ async function checkPokemon() {
                 "🟡 MAYBE — WAIT";
 
             recommendationText.textContent =
-                `You have enough candy, but the IV is moderate (${iv}%). Consider waiting for a stronger Pokémon.`;
+                `This Pokémon has a moderate IV of ${iv}%. You may want to wait for a stronger Pokémon before using your resources.`;
 
         } else {
 
@@ -119,12 +153,10 @@ async function checkPokemon() {
                 "🔴 DON'T EVOLVE";
 
             recommendationText.textContent =
-                `The IV is relatively low (${iv}%). It may be better to wait for a stronger Pokémon.`;
+                `This Pokémon has a relatively low IV of ${iv}%. It may be better to wait for a stronger Pokémon.`;
         }
 
-        // Show recommendation
-        recommendation.style.backgroundColor =
-            "#f4f6f8";
+        recommendation.style.backgroundColor = "#f4f6f8";
 
         result.style.display = "block";
 
