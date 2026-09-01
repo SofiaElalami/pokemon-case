@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pokémon Case - Should I Evolve?</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Pokémon Case</h1>
+        <p>Should I evolve this Pokémon?</p>
+    </header>
+
+    <main>
+
+        <section class="search-card">
+
+            <h2>Check your Pokémon</h2>
+
+            <label for="pokemon">Pokémon name</label>
+            <input
+                type="text"
+                id="pokemon"
+                placeholder="e.g. Pikachu"
+            >
+
+            <label for="cp">Current CP</label>
+            <input
+                type="number"
+                id="cp"
+                placeholder="e.g. 550"
+                min="0"
+            >
+
+            <label for="iv">IV (%)</label>
+            <input
+                type="number"
+                id="iv"
+                placeholder="e.g. 90"
+                min="0"
+                max="100"
+            >
+
+            <label for="candy">Candy available</label>
+            <input
+                type="number"
+                id="candy"
+                placeholder="e.g. 100"
+                min="0"
+            >
+
+            <button id="checkButton">Check Pokémon</button>
+
+        </section>
+
+
+        <section id="result" class="result-card">
+
+            <div id="pokemonInfo">
+
+                <img id="pokemonImage" src="" alt="Pokémon">
+
+                <h2 id="pokemonName"></h2>
+
+                <p id="pokemonType"></p>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div>
+                    <span>CP</span>
+                    <strong id="displayCP">-</strong>
+                </div>
+
+                <div>
+                    <span>IV</span>
+                    <strong id="displayIV">-</strong>
+                </div>
+
+                <div>
+                    <span>Candy</span>
+                    <strong id="displayCandy">-</strong>
+                </div>
+
+            </div>
+
+
+            <div class="evolution">
+
+                <h3>Evolution</h3>
+
+                <p>
+                    Next evolution:
+                    <strong id="evolutionName">-</strong>
+                </p>
+
+                <p>
+                    Candy required:
+                    <strong id="candyRequired">-</strong>
+                </p>
+
+            </div>
+
+
+            <div id="recommendation">
+
+                <h2 id="recommendationTitle"></h2>
+
+                <p id="recommendationText"></p>
+
+            </div>
+
+        </section>
+
+
+        <p id="errorMessage" class="error"></p>
+
+    </main>
+
+
+    <footer>
+        <p>Pokémon Case Project</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
