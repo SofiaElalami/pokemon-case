@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,17 +7,18 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif; /* Nuovo Font a tema */
     background: #f4f6f8;
     color: #222;
     min-height: 100vh;
 }
 
 header {
-    background: #222;
+    background: #EE1515; /* Rosso Pokémon */
     color: white;
     text-align: center;
     padding: 40px 20px;
+    border-bottom: 4px solid #222224; /* Riga scura di stacco */
 }
 
 header h1 {
@@ -25,7 +28,7 @@ header h1 {
 
 header p {
     font-size: 18px;
-    opacity: 0.8;
+    opacity: 0.9; /* Leggermente più visibile sul rosso */
 }
 
 main {
@@ -52,7 +55,7 @@ label {
     display: block;
     margin-top: 15px;
     margin-bottom: 7px;
-    font-weight: bold;
+    font-weight: 600; /* Leggermente meno marcato per eleganza */
 }
 
 input {
@@ -61,6 +64,15 @@ input {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 16px;
+    font-family: 'Poppins', Arial, sans-serif; /* Applica il font anche all'input */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Nuovo: Effetto quando si clicca sull'input */
+input:focus {
+    outline: none;
+    border-color: #3B4CCA;
+    box-shadow: 0 0 5px rgba(59, 76, 202, 0.5);
 }
 
 button {
@@ -69,15 +81,18 @@ button {
     padding: 14px;
     border: none;
     border-radius: 8px;
-    background: #222;
+    background: #3B4CCA; /* Blu Pokémon */
     color: white;
     font-size: 17px;
     font-weight: bold;
+    text-transform: uppercase;
     cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 button:hover {
-    opacity: 0.85;
+    background: #FFCB05; /* Giallo Pokémon */
+    color: #222;
 }
 
 .result-card {
@@ -152,7 +167,7 @@ button:hover {
 }
 
 .error {
-    color: #c62828;
+    color: #EE1515; /* Adattato al rosso Pokémon */
     text-align: center;
     font-weight: bold;
     margin-top: 15px;
