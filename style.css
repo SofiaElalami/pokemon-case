@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -7,189 +5,223 @@
 }
 
 body {
-    font-family: 'Poppins', Arial, sans-serif; /* Nuovo Font a tema */
-    background: #f4f6f8;
+    font-family: 'Poppins', sans-serif;
+    /* Immagine di sfondo epica (puoi cambiarla se ne trovi una migliore!) */
+    background: url('https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?q=80&w=2069&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
     color: #222;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Questo crea un velo scuro sullo sfondo per far leggere meglio il testo */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); 
+    z-index: -1;
 }
 
 header {
-    background: #EE1515; /* Rosso Pokémon */
+    background: rgba(238, 21, 21, 0.95); /* Rosso Pokémon in trasparenza */
     color: white;
     text-align: center;
-    padding: 40px 20px;
-    border-bottom: 4px solid #222224; /* Riga scura di stacco */
+    padding: 30px 20px;
+    border-bottom: 5px solid #222224;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 header h1 {
-    font-size: 42px;
-    margin-bottom: 10px;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 1px;
 }
 
 header p {
     font-size: 18px;
-    opacity: 0.9; /* Leggermente più visibile sul rosso */
+    font-weight: 400;
+    opacity: 0.9;
 }
 
 main {
-    max-width: 800px;
-    margin: 40px auto;
+    max-width: 500px; /* Più stretto per sembrare un vero Pokédex */
+    width: 100%;
+    margin: 50px auto;
     padding: 0 20px;
+    flex-grow: 1;
 }
 
+/* L'EFFETTO GLASSMORPHISM (Vetro smerigliato) */
 .search-card,
 .result-card {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+}
+
+.search-card:hover {
+    transform: translateY(-5px); /* Solleva leggermente la card col mouse */
 }
 
 .search-card h2 {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     text-align: center;
+    color: #1a1a1a;
+    font-weight: 800;
+    font-size: 28px;
+}
+
+.input-group {
+    margin-bottom: 25px;
 }
 
 label {
     display: block;
-    margin-top: 15px;
-    margin-bottom: 7px;
-    font-weight: 600; /* Leggermente meno marcato per eleganza */
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
 }
 
 input {
     width: 100%;
-    padding: 13px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
     font-size: 16px;
-    font-family: 'Poppins', Arial, sans-serif; /* Applica il font anche all'input */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
 }
 
-/* Nuovo: Effetto quando si clicca sull'input */
+/* Animazione fluida quando si digita */
 input:focus {
     outline: none;
     border-color: #3B4CCA;
-    box-shadow: 0 0 5px rgba(59, 76, 202, 0.5);
+    box-shadow: 0 0 12px rgba(59, 76, 202, 0.4);
+    background: #fff;
+    transform: scale(1.02); 
 }
 
+/* Pulsante Premium */
 button {
     width: 100%;
-    margin-top: 25px;
-    padding: 14px;
+    margin-top: 10px;
+    padding: 16px;
     border: none;
-    border-radius: 8px;
-    background: #3B4CCA; /* Blu Pokémon */
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3B4CCA, #2c3999);
     color: white;
-    font-size: 17px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0 6px 15px rgba(59, 76, 202, 0.4);
+    transition: all 0.3s ease;
 }
 
 button:hover {
-    background: #FFCB05; /* Giallo Pokémon */
+    background: linear-gradient(135deg, #FFCB05, #e6b600); /* Diventa giallo! */
     color: #222;
+    box-shadow: 0 8px 20px rgba(255, 203, 5, 0.5);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(2px); /* Effetto "schiacciamento" al click */
 }
 
 .result-card {
-    display: none;
+    display: none; /* Appare solo con JavaScript */
     text-align: center;
+    animation: fadeIn 0.6s ease forwards;
+}
+
+/* Animazione di apparizione del risultato */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 #pokemonImage {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     object-fit: contain;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Ombra 3D sul Pokémon */
+    margin-bottom: 20px;
+    transition: transform 0.4s ease;
+}
+
+#pokemonImage:hover {
+    transform: scale(1.15) rotate(5deg); /* Il Pokémon si muove se ci passi sopra! */
 }
 
 #pokemonName {
     text-transform: capitalize;
-    font-size: 30px;
+    font-size: 34px;
+    font-weight: 800;
     margin: 10px 0;
+    color: #1a1a1a;
 }
 
 #pokemonType {
     text-transform: capitalize;
-    color: #666;
+    color: #555;
+    font-size: 18px;
+    font-weight: 600;
     margin-bottom: 25px;
 }
 
-.stats {
-    display: flex;
-    justify-content: space-around;
-    gap: 15px;
-    margin: 25px 0;
-}
-
-.stats div {
-    flex: 1;
-    background: #f4f6f8;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.stats span {
-    display: block;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.stats strong {
-    font-size: 20px;
-}
-
 .evolution {
+    background: rgba(255, 255, 255, 0.7);
     padding: 20px;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .evolution h3 {
-    margin-bottom: 12px;
-}
-
-.evolution p {
-    margin: 7px 0;
+    margin-bottom: 10px;
+    color: #222;
 }
 
 #recommendation {
     margin-top: 25px;
     padding: 20px;
     border-radius: 12px;
+    background: #3B4CCA;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 #recommendationTitle {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    font-size: 22px;
 }
 
 .error {
-    color: #EE1515; /* Adattato al rosso Pokémon */
+    color: #EE1515;
     text-align: center;
     font-weight: bold;
-    margin-top: 15px;
-}
-
-footer {
-    text-align: center;
-    padding: 30px;
-    color: #777;
+    margin-top: 20px;
+    font-size: 16px;
+    background: rgba(238, 21, 21, 0.1);
+    padding: 10px;
+    border-radius: 8px;
 }
 
 @media (max-width: 600px) {
-    header h1 {
-        font-size: 32px;
-    }
-
-    .search-card,
-    .result-card {
-        padding: 20px;
-    }
-
-    .stats {
-        flex-direction: column;
-    }
+    header h1 { font-size: 36px; }
+    .search-card, .result-card { padding: 25px; }
 }
