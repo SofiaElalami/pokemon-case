@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Case - Evolution Checker</title>
+    <!-- Favicon: Icona nella linguetta del browser -->
+    <link rel="icon" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" type="image/png">
     <link rel="stylesheet" href="style.css">
-    <!-- Importiamo il font Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -15,7 +16,6 @@
     </header>
 
     <main>
-        <!-- Card di ricerca -->
         <div class="search-card">
             <h2>Check your Pokémon</h2>
             
@@ -32,10 +32,16 @@
 
                 <button type="submit" id="checkBtn">Check Pokémon</button>
             </form>
+            
+            <!-- Animazione di Caricamento -->
+            <div id="loader" class="loader" style="display: none;">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Loading...">
+                <p>Ricerca in corso...</p>
+            </div>
+
             <div id="errorMsg" class="error"></div>
         </div>
 
-        <!-- Card dei risultati (nascosta finché non si cerca un Pokémon) -->
         <div class="result-card" id="resultCard">
             <img id="pokemonImage" src="" alt="Pokemon">
             <h2 id="pokemonName"></h2>
@@ -53,7 +59,6 @@
         </div>
     </main>
 
-    <!-- Assicurati che il nome del tuo file JavaScript sia questo -->
     <script src="script.js"></script>
 </body>
 </html>
