@@ -4,28 +4,26 @@
     padding: 0;
 }
 
+/* Sfondo Animato CSS (Sostituisce l'immagine statica) */
 body {
     font-family: 'Poppins', sans-serif;
-    /* Immagine di sfondo epica (puoi cambiarla se ne trovi una migliore!) */
-    background: url('https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?q=80&w=2069&auto=format&fit=crop') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     color: #222;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Questo crea un velo scuro sullo sfondo per far leggere meglio il testo */
-body::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4); 
-    z-index: -1;
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 header {
-    background: rgba(238, 21, 21, 0.95); /* Rosso Pokémon in trasparenza */
+    background: rgba(238, 21, 21, 0.95);
     color: white;
     text-align: center;
     padding: 30px 20px;
@@ -38,39 +36,34 @@ header h1 {
     font-weight: 800;
     margin-bottom: 5px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    letter-spacing: 1px;
 }
 
 header p {
     font-size: 18px;
-    font-weight: 400;
     opacity: 0.9;
 }
 
 main {
-    max-width: 500px; /* Più stretto per sembrare un vero Pokédex */
+    max-width: 500px;
     width: 100%;
     margin: 50px auto;
     padding: 0 20px;
     flex-grow: 1;
 }
 
-/* L'EFFETTO GLASSMORPHISM (Vetro smerigliato) */
 .search-card,
 .result-card {
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    /* Bordo dinamico gestito da JS in base al tipo di Pokémon */
+    border: 3px solid var(--type-color, transparent); 
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    /* Ombra dinamica gestita da JS */
+    box-shadow: 0 15px 35px var(--type-shadow, rgba(0, 0, 0, 0.3));
     margin-bottom: 30px;
-    transition: transform 0.3s ease;
-}
-
-.search-card:hover {
-    transform: translateY(-5px); /* Solleva leggermente la card col mouse */
+    transition: transform 0.3s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 .search-card h2 {
@@ -81,9 +74,7 @@ main {
     font-size: 28px;
 }
 
-.input-group {
-    margin-bottom: 25px;
-}
+.input-group { margin-bottom: 25px; }
 
 label {
     display: block;
@@ -104,7 +95,6 @@ input {
     transition: all 0.3s ease;
 }
 
-/* Animazione fluida quando si digita */
 input:focus {
     outline: none;
     border-color: #3B4CCA;
@@ -113,7 +103,6 @@ input:focus {
     transform: scale(1.02); 
 }
 
-/* Pulsante Premium */
 button {
     width: 100%;
     margin-top: 10px;
@@ -125,30 +114,23 @@ button {
     font-size: 18px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
     cursor: pointer;
     box-shadow: 0 6px 15px rgba(59, 76, 202, 0.4);
     transition: all 0.3s ease;
 }
 
 button:hover {
-    background: linear-gradient(135deg, #FFCB05, #e6b600); /* Diventa giallo! */
+    background: linear-gradient(135deg, #FFCB05, #e6b600);
     color: #222;
-    box-shadow: 0 8px 20px rgba(255, 203, 5, 0.5);
     transform: translateY(-2px);
 }
 
-button:active {
-    transform: translateY(2px); /* Effetto "schiacciamento" al click */
-}
-
 .result-card {
-    display: none; /* Appare solo con JavaScript */
+    display: none;
     text-align: center;
     animation: fadeIn 0.6s ease forwards;
 }
 
-/* Animazione di apparizione del risultato */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px) scale(0.95); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -158,68 +140,35 @@ button:active {
     width: 200px;
     height: 200px;
     object-fit: contain;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Ombra 3D sul Pokémon */
+    /* Ombra del Pokémon che cambia colore */
+    filter: drop-shadow(0 15px 25px var(--type-shadow, rgba(0,0,0,0.3))); 
     margin-bottom: 20px;
     transition: transform 0.4s ease;
 }
 
 #pokemonImage:hover {
-    transform: scale(1.15) rotate(5deg); /* Il Pokémon si muove se ci passi sopra! */
+    transform: scale(1.15) rotate(5deg);
 }
 
-#pokemonName {
-    text-transform: capitalize;
-    font-size: 34px;
-    font-weight: 800;
-    margin: 10px 0;
-    color: #1a1a1a;
-}
+#pokemonName { text-transform: capitalize; font-size: 34px; font-weight: 800; margin: 10px 0; color: #1a1a1a; }
+#pokemonType { text-transform: capitalize; color: #555; font-size: 18px; font-weight: 600; margin-bottom: 25px; }
 
-#pokemonType {
-    text-transform: capitalize;
-    color: #555;
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 25px;
-}
+.evolution { background: rgba(255, 255, 255, 0.7); padding: 20px; border-radius: 12px; margin: 20px 0; }
+.evolution h3 { margin-bottom: 10px; color: #222; }
 
-.evolution {
-    background: rgba(255, 255, 255, 0.7);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-    border: 1px solid rgba(0,0,0,0.05);
-}
+#recommendation { margin-top: 25px; padding: 20px; border-radius: 12px; background: #3B4CCA; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+#recommendationTitle { margin-bottom: 5px; font-size: 22px; }
 
-.evolution h3 {
-    margin-bottom: 10px;
-    color: #222;
-}
+/* Animazione Psyduck Errore */
+.error { color: #EE1515; text-align: center; font-weight: bold; margin-top: 20px; font-size: 16px; background: rgba(238, 21, 21, 0.1); padding: 15px; border-radius: 12px; }
+.error-img { width: 130px; margin-top: 15px; animation: bounce 1.5s infinite; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2)); }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-#recommendation {
-    margin-top: 25px;
-    padding: 20px;
-    border-radius: 12px;
-    background: #3B4CCA;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-#recommendationTitle {
-    margin-bottom: 5px;
-    font-size: 22px;
-}
-
-.error {
-    color: #EE1515;
-    text-align: center;
-    font-weight: bold;
-    margin-top: 20px;
-    font-size: 16px;
-    background: rgba(238, 21, 21, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-}
+/* CSS per Loader Pokéball */
+.loader { text-align: center; margin-top: 25px; }
+.loader img { width: 60px; animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.loader p { font-weight: 600; color: #222; margin-top: 15px; }
 
 @media (max-width: 600px) {
     header h1 { font-size: 36px; }
