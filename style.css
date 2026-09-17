@@ -8,7 +8,7 @@
 body {
     font-family: 'Poppins', sans-serif;
     /* Immagine con un collage di carte Pokémon */
-    background: url('https://wallpaperaccess.com/full/5818320.jpg') repeat;
+    background: url('https://as1.ftcdn.net/v2/jpg/05/78/64/28/1000_F_578642828_gwPJBJddFyTmowuOzoQPRil72H0dd50b.jpg') repeat;
     background-size: 600px; /* Grandezza delle carte, puoi aumentarla o diminuirla */
     animation: scrollCards 40s linear infinite; /* Scorrimento continuo in 40 secondi */
     color: #222;
@@ -35,13 +35,14 @@ body::before {
 }
 
 header {
-    background: rgba(238, 21, 21, 0.95);
+    background: rgba(34, 34, 36, 0.9);
     color: white;
     text-align: center;
     padding: 30px 20px;
-    border-bottom: 5px solid #222224;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border-bottom: 5px solid #FFCB05;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
+
 
 header h1 {
     font-size: 48px;
