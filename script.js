@@ -1,112 +1,514 @@
-const form = document.getElementById("pokemonForm");
-
-// Mappatura professionale dei colori per ogni tipo di Pokémon
 const typeColors = {
-    normal: '#A8A77A', fire: '#EE8130', water: '#6390F0', electric: '#F7D02C',
-    grass: '#7AC74C', ice: '#96D9D6', fighting: '#C22E28', poison: '#A33EA1',
-    ground: '#E2BF65', flying: '#A98FF3', psychic: '#F95587', bug: '#A6B91A',
-    rock: '#B6A136', ghost: '#735797', dragon: '#6F35FC', dark: '#705746',
-    steel: '#B7B7CE', fairy: '#D685AD'
+    normal: "#A8A77A",
+    fire: "#EE8130",
+    water: "#6390F0",
+    electric: "#F7D02C",
+    grass: "#7AC74C",
+    ice: "#96D9D6",
+    fighting: "#C22E28",
+    poison: "#A33EA1",
+    ground: "#E2BF65",
+    flying: "#A98FF3",
+    psychic: "#F95587",
+    bug: "#A6B91A",
+    rock: "#B6A136",
+    ghost: "#735797",
+    dragon: "#6F35FC",
+    dark: "#705746",
+    steel: "#B7B7CE",
+    fairy: "#D685AD"
 };
 
-form.addEventListener("submit", function(event) {
-    event.preventDefault(); 
-    checkPokemon();
-});
+const statLabels = {
+    hp: "HP",
+    attack: "Attack",
+    defense: "Defense",
+    "special-attack": "Special Attack",
+    "special-defense": "Special Defense",
+    speed: "Speed"
+};
 
-async function checkPokemon() {
-    const pokemonName = document.getElementById("pokemonInput").value.trim().toLowerCase();
-    const candy = Number(document.getElementById("candyInput").value);
+function displayName(name) {
+    return name
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
 
-    const result = document.getElementById("resultCard");
-    const errorMessage = document.getElementById("errorMsg");
-    const loader = document.getElementById("loader");
+function getStats(pokemon) {
+    return Object.fromEntries(
+        pokemon.stats.map(stat => [
+            stat.stat.name,
+            stat.base_stat
+        ])
+    );
+}
 
-    // Reset interfaccia prima di una nuova ricerca
-    errorMessage.innerHTML = "";
-    result.style.display = "none";
+function getTotal(stats) {
+    return Object.keys(statLabels).reduce(
+        (total, key) => total + stats[key],
+        0
+    );
+}
 
-    if (!pokemonName || candy < 0) {
-        errorMessage.innerHTML = "<p>Please fill in all the fields correctly.</p>";
+async function fetchJSON(url) {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(
+            response.status === 404
+                ? "Pokémon not found. Please check the name."
+                : "Could not load Pokémon data. Please try again."
+        );
+    }
+
+    return response.json();
+}
+
+// Find all immediate evolutions, including branching evolutions.
+function findNextEvolutions(chain, speciesName) {
+    if (chain.species.name === speciesName) {
+        return chain.evolves_to.map(
+            evolution => evolution.species
+        );
+    }
+
+    for (const branch of chain.evolves_to) {
+        const found = findNextEvolutions(branch, speciesName);
+
+        if (found !== null) {
+            return found;
+        }
+    }
+
+    return null;
+}
+
+function addElement(parent, tag, text) {
+    const element = document.createElement(tag);
+
+    if (text !== undefined) {
+        element.textContent = text;
+    }
+
+    parent.appendChild(element);
+    return element;
+}
+
+function setPokemonImage(image, pokemon) {
+    const artwork =
+        pokemon.sprites.other?.["official-artwork"]?.front_default;
+
+    const fallback = pokemon.sprites.front_default;
+
+    image.alt = displayName(pokemon.name);
+    image.style.display = "";
+
+    if (!artwork && !fallback) {
+        image.removeAttribute("src");
+        image.style.display = "none";
         return;
     }
 
-    // Mostra l'animazione di caricamento
-    loader.style.display = "block";
+    image.onerror = () => {
+        image.onerror = () => {
+            image.style.display = "none";
+        };
 
-    try {
-        const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
-        if (!pokemonResponse.ok) throw new Error("Pokémon not found");
-        const pokemonData = await pokemonResponse.json();
-
-        const speciesResponse = await fetch(pokemonData.species.url);
-        const speciesData = await speciesResponse.json();
-        const evolutionResponse = await fetch(speciesData.evolution_chain.url);
-        const evolutionData = await evolutionResponse.json();
-
-        const currentName = pokemonData.name;
-        let nextEvolution = "No further evolution";
-
-        function findNextEvolution(chain) {
-            if (chain.species.name === currentName) {
-                if (chain.evolves_to.length > 0) return chain.evolves_to[0].species.name;
-                return null;
-            }
-            for (const evolution of chain.evolves_to) {
-                const result = findNextEvolution(evolution);
-                if (result) return result;
-            }
-            return null;
-        }
-
-        const foundEvolution = findNextEvolution(evolutionData.chain);
-        if (foundEvolution) nextEvolution = foundEvolution;
-
-        // Recupera il tipo primario per applicare dinamicamente il colore CSS
-        const primaryType = pokemonData.types[0].type.name;
-        const themeColor = typeColors[primaryType] || '#333';
-        
-        // Applica le variabili CSS per bordo e ombra personalizzati sulla Card
-        result.style.setProperty('--type-color', themeColor);
-        result.style.setProperty('--type-shadow', `${themeColor}80`); // Aggiunge trasparenza
-
-        const image = pokemonData.sprites.other["official-artwork"].front_default || pokemonData.sprites.front_default;
-        document.getElementById("pokemonImage").src = image;
-        document.getElementById("pokemonName").textContent = pokemonData.name;
-        document.getElementById("pokemonType").textContent = pokemonData.types.map(t => t.type.name).join(" / ");
-
-        document.getElementById("evolutionDetails").textContent = nextEvolution !== "No further evolution" 
-            ? `Evolves into: ${nextEvolution}` 
-            : "Does not evolve";
-
-        const recommendationTitle = document.getElementById("recommendationTitle");
-        const recommendationText = document.getElementById("recommendationText");
-        const recommendationBox = document.getElementById("recommendation");
-
-        if (nextEvolution === "No further evolution") {
-            recommendationTitle.textContent = "🛑 MAX LEVEL";
-            recommendationText.textContent = `${pokemonData.name.toUpperCase()} cannot evolve any further.`;
-            recommendationBox.style.backgroundColor = "#222224"; 
-        } else if (candy >= 50) { 
-            recommendationTitle.textContent = "🟢 YES — EVOLVE!";
-            recommendationText.textContent = `You have enough candy (${candy}) to evolve into ${nextEvolution.toUpperCase()}!`;
-            recommendationBox.style.backgroundColor = "#4CAF50"; 
+        if (fallback && image.src !== fallback) {
+            image.src = fallback;
         } else {
-            recommendationTitle.textContent = "🔴 WAIT";
-            recommendationText.textContent = `You only have ${candy} candies. You need more to evolve it.`;
-            recommendationBox.style.backgroundColor = "#EE1515"; 
+            image.style.display = "none";
+        }
+    };
+
+    image.src = artwork || fallback;
+}
+
+function initializePokemonApp() {
+    const form = document.getElementById("pokemonForm");
+
+    if (!form) return;
+
+    // Hide and disable the old candy field.
+    const candyInput = document.getElementById("candyInput");
+
+    if (candyInput) {
+        candyInput.required = false;
+        candyInput.disabled = true;
+        candyInput.style.display = "none";
+
+        document
+            .querySelectorAll('label[for="candyInput"]')
+            .forEach(label => {
+                label.style.display = "none";
+            });
+
+        const previous = candyInput.previousElementSibling;
+
+        if (previous && previous.tagName === "LABEL") {
+            previous.style.display = "none";
+        }
+    }
+
+    // Styles for the comparison, without changing your CSS file.
+    const style = document.createElement("style");
+
+    style.textContent = `
+        #evolutionDetails {
+            white-space: normal;
         }
 
-        // Spegni caricamento, accendi Card
-        loader.style.display = "none";
-        result.style.display = "block";
+        .evolution-comparison {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+            color: #222;
+            text-align: left;
+        }
 
-    } catch (error) {
-        loader.style.display = "none";
-        // Iniezione HTML per l'errore creativo con Psyduck
-        errorMessage.innerHTML = `
-            <p>Mhm... la nostra enciclopedia non trova questo Pokémon! Sei sicuro di averlo scritto bene?</p>
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/54.png" alt="Psyduck Confused" class="error-img">
-        `;
-    }
+        .evolution-comparison img {
+            display: block;
+            width: 130px;
+            height: 130px;
+            object-fit: contain;
+            margin: 0 auto;
+        }
+
+        .evolution-comparison h3 {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .comparison-scroll {
+            overflow-x: auto;
+        }
+
+        .evolution-comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .evolution-comparison th,
+        .evolution-comparison td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #ddd;
+            text-align: right;
+        }
+
+        .evolution-comparison th:first-child {
+            text-align: left;
+        }
+
+        .evolution-comparison p,
+        .comparison-method {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    // Prevent older requests from overwriting newer results.
+    let requestNumber = 0;
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const thisRequest = ++requestNumber;
+
+        const pokemonName = document
+            .getElementById("pokemonInput")
+            .value.trim()
+            .toLowerCase()
+            .replace(/♀/g, "-f")
+            .replace(/♂/g, "-m")
+            .replace(/[.’']/g, "")
+            .replace(/\s+/g, "-");
+
+        const result = document.getElementById("resultCard");
+        const errorMessage = document.getElementById("errorMsg");
+        const loader = document.getElementById("loader");
+
+        errorMessage.textContent = "";
+        errorMessage.style.display = "none";
+        result.style.display = "none";
+
+        if (loader) loader.style.display = "none";
+
+        if (!pokemonName) {
+            errorMessage.textContent = "Please enter a Pokémon name.";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        if (loader) loader.style.display = "block";
+
+        try {
+            const pokemon = await fetchJSON(
+                `https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(pokemonName)}`
+            );
+
+            const species = await fetchJSON(pokemon.species.url);
+
+            if (!species.evolution_chain?.url) {
+                throw new Error(
+                    "Evolution data is unavailable for this Pokémon."
+                );
+            }
+
+            const chain = await fetchJSON(species.evolution_chain.url);
+
+            const nextSpecies = findNextEvolutions(
+                chain.chain,
+                species.name
+            );
+
+            if (nextSpecies === null) {
+                throw new Error(
+                    "This Pokémon could not be located in its evolution chain."
+                );
+            }
+
+            // Resolve each species to its default Pokémon variety.
+            const evolutions = await Promise.all(
+                nextSpecies.map(async next => {
+                    const nextSpeciesData = await fetchJSON(next.url);
+
+                    const defaultVariety = nextSpeciesData.varieties.find(
+                        variety => variety.is_default
+                    );
+
+                    if (!defaultVariety) {
+                        throw new Error(
+                            "Evolution comparison data is unavailable."
+                        );
+                    }
+
+                    return fetchJSON(defaultVariety.pokemon.url);
+                })
+            );
+
+            if (thisRequest !== requestNumber) return;
+
+            const primaryType = pokemon.types[0].type.name;
+            const color = typeColors[primaryType] || "#333333";
+
+            result.style.setProperty("--type-color", color);
+            result.style.setProperty("--type-shadow", `${color}80`);
+
+            setPokemonImage(
+                document.getElementById("pokemonImage"),
+                pokemon
+            );
+
+            document.getElementById("pokemonName").textContent =
+                displayName(pokemon.name);
+
+            document.getElementById("pokemonType").textContent =
+                pokemon.types
+                    .map(type => displayName(type.type.name))
+                    .join(" / ");
+
+            const details = document.getElementById("evolutionDetails");
+            details.replaceChildren();
+
+            const currentStats = getStats(pokemon);
+            const currentTotal = getTotal(currentStats);
+
+            const comparisons = evolutions.map(evolution => {
+                const stats = getStats(evolution);
+                const total = getTotal(stats);
+
+                return {
+                    pokemon: evolution,
+                    stats,
+                    total,
+                    change: total - currentTotal,
+                    percentage: (
+                        (total - currentTotal) / currentTotal * 100
+                    ).toFixed(1),
+                    lowerStats: Object.keys(statLabels).filter(
+                        key => stats[key] < currentStats[key]
+                    )
+                };
+            });
+
+            addElement(
+                details,
+                "p",
+                comparisons.length
+                    ? "Compare the next evolutions:"
+                    : "No further evolution is listed."
+            );
+
+            for (const comparison of comparisons) {
+                const section = addElement(details, "section");
+                section.className = "evolution-comparison";
+
+                const image = addElement(section, "img");
+                setPokemonImage(image, comparison.pokemon);
+
+                addElement(
+                    section,
+                    "h3",
+                    displayName(comparison.pokemon.name)
+                );
+
+                const scroll = addElement(section, "div");
+                scroll.className = "comparison-scroll";
+
+                const table = addElement(scroll, "table");
+                const header = addElement(
+                    addElement(table, "thead"),
+                    "tr"
+                );
+
+                ["Stat", "Current", "Evolved", "Change"].forEach(label => {
+                    const cell = addElement(header, "th", label);
+                    cell.scope = "col";
+                });
+
+                const body = addElement(table, "tbody");
+
+                for (const key of [...Object.keys(statLabels), "total"]) {
+                    const before =
+                        key === "total" ? currentTotal : currentStats[key];
+
+                    const after =
+                        key === "total"
+                            ? comparison.total
+                            : comparison.stats[key];
+
+                    const difference = after - before;
+                    const row = addElement(body, "tr");
+
+                    const label = addElement(
+                        row,
+                        "th",
+                        key === "total" ? "Total" : statLabels[key]
+                    );
+
+                    label.scope = "row";
+
+                    addElement(row, "td", String(before));
+                    addElement(row, "td", String(after));
+                    addElement(
+                        row,
+                        "td",
+                        `${difference > 0 ? "+" : ""}${difference}`
+                    );
+                }
+
+                addElement(
+                    section,
+                    "p",
+                    `Total base stats: ${
+                        comparison.change > 0 ? "+" : ""
+                    }${comparison.percentage}%.`
+                );
+
+                if (comparison.lowerStats.length) {
+                    addElement(
+                        section,
+                        "p",
+                        "Stats that decrease: " +
+                        comparison.lowerStats
+                            .map(key => statLabels[key])
+                            .join(", ") +
+                        "."
+                    );
+                }
+            }
+
+            const method = addElement(
+                details,
+                "p",
+                "Source: PokéAPI. This recommendation compares the sum " +
+                "of six base stats, giving each equal weight. " +
+                "It does not assess moves, abilities, battle strategy " +
+                "or evolution requirements. Evolution targets use their " +
+                "default forms; special forms may differ."
+            );
+
+            method.className = "comparison-method";
+
+            const title = document.getElementById("recommendationTitle");
+            const text = document.getElementById("recommendationText");
+            const box = document.getElementById("recommendation");
+
+            box.style.color = "#ffffff";
+
+            if (!comparisons.length) {
+                title.textContent = "NO FURTHER EVOLUTION";
+                text.textContent =
+                    "There is no next evolution to compare.";
+                box.style.backgroundColor = "#222224";
+            } else {
+                const bestTotal = Math.max(
+                    ...comparisons.map(item => item.total)
+                );
+
+                const bestOptions = comparisons.filter(
+                    item => item.total === bestTotal
+                );
+
+                const names = bestOptions
+                    .map(item => displayName(item.pokemon.name))
+                    .join(", ");
+
+                if (bestTotal > currentTotal) {
+                    title.textContent = "EVOLUTION FAVORED BY BASE STATS";
+
+                    text.textContent =
+                        `${names}: ${currentTotal} → ${bestTotal} ` +
+                        `total base stats (+${bestOptions[0].percentage}%).` +
+                        (
+                            bestOptions.length > 1
+                                ? " These options tie on total; compare their individual stats."
+                                : ""
+                        ) +
+                        (
+                            bestOptions.some(item => item.lowerStats.length)
+                                ? " Some stats decrease: check the comparison."
+                                : ""
+                        );
+
+                    box.style.backgroundColor = "#24693B";
+                } else {
+                    title.textContent = "COMPARE THE TRADE-OFFS";
+
+                    text.textContent =
+                        "Evolution does not increase the total base stats. " +
+                        "Compare individual stats before deciding.";
+
+                    box.style.backgroundColor = "#79520A";
+                }
+            }
+
+            result.style.display = "block";
+
+        } catch (error) {
+            if (thisRequest !== requestNumber) return;
+
+            errorMessage.textContent =
+                error instanceof TypeError
+                    ? "Could not connect. Check your connection and try again."
+                    : error.message;
+
+            errorMessage.style.display = "block";
+
+        } finally {
+            if (thisRequest === requestNumber && loader) {
+                loader.style.display = "none";
+            }
+        }
+    });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializePokemonApp);
+} else {
+    initializePokemonApp();
 }
